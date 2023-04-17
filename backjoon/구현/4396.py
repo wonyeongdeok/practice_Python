@@ -1,70 +1,67 @@
-n = int(input())
+"""
+[문제]
+1. n x n 격자 위 지뢰찾기
+2. m개의 지뢰
+3. 플레이어 격자 건드리기
+    - 지뢰가 있는 지점, 패배
+    - 지뢰가 없는 지점, 상하좌우 및 대각선으로 인접한 8개 칸에 지뢰 몇개인지 알려주는 0~8 나타남
+"""
 
-# 지뢰가 표시되어 있는 판 만들기
+"""
+[Solution]
+1. 지뢰 격자판 생성
+2. 플레이 격자판 생성
+3. 출력 격자판 생성
+    - 지뢰 격자판과 플레이 격자판 비교
+        - 지뢰 칸이 하나라도 열려있으면 지뢰가 있는 모든 칸이 별표로 표시됨. 다른 모든 지점은 온점으로 표시됨.
+        - 상하좌우 및 대각선 인접 8칸에서 지뢰 개수를 해당 격자의 숫자로 지정
+        - 
+"""
+
+n = int(input('> '))
+
+# 지뢰 격자판 생성
 mine_board = []
-# 입력된 지뢰 개수
-m = 0
+for _ in range(n):
+    mine_row = [_ for _ in input('지뢰 격자판 입력 > ')]
+    mine_board.append(mine_row)
+
+# 플레이 격자판 생성
+play_board = []
+for _ in range(n):
+    play_row = [_ for _ in input('플레이 격자판 입력 > ')]
+    play_board.append(play_row)
+
+# 인접 8칸 이동 방향
+direction_rows    = [0, 0, 1, 1, 1, -1, -1, -1]
+direction_columns = [-1, 1, -1, 0, 1, -1, 0, 1]
+
+# 출력 격자판 생성
+board = [[0 for _ in range(n)] for _ in range(n)]
+is_lose = False
 for i in range(n):
-    line = input()
-    line_arr = []
-    for s in line:
-        # 입력된 문자 중 지뢰 있을 경우 up
-        if s == '*':
-            m += 1
-        line_arr.append(s)
-    mine_board.append(line_arr)
-
-# 열려있거나 열려있지 않은 판 만들기
-game_board = []
-for i in range(n):
-    line = input()
-    line_arr = []
-    for s in line:
-        line_arr.append(s)
-    game_board.append(line_arr)
-
-coordinate = [[-1, -1], [-1, 0], [-1, 1],
-              [0, -1], [0, 1],
-              [1, -1], [1, 0], [1, 1]]
-
-# 예제 출력하기
-info_board = [[0]*n for _ in range(n)]
-
-import itertools
-for i, j in itertools.product(range(n), range(n)):
-    mine_b = mine_board[i][j]
-    game_b = game_board[i][j]
-    # 각 [i, j] 별 인접 지뢰 개수
-    detect_mine_cnt = 0
-    # 지뢰 표시판에 '.' and 게임 표시판에 'x'일 경우
-    if mine_b == '.' and game_b == 'x':
-        # 상하좌우 혹은 대각선으로 인접한 8개의 칸에 지뢰 존재 여부 탐색
-        for r, c in coordinate:
-            dr = i + r
-            dc = j + c
-            # n x n 게임보드 외 탐색 금지
-            if dr < 0 or dc < 0:
-                continue
-            if dr >= n or dc >= n:
-                continue
-            # 좌표 탐색 시 지뢰일 경우
-            if mine_board[dr][dc] == '*':
-                # [i][j]와 인접한 [dr][dc]에서 지뢰 발견하여 지뢰 개수 up
-                detect_mine_cnt += 1
-        # 상화좌우 및 대각선 인접 지뢰 개수만큼 [i][j]에 숫자 입력
-        for m_number in range(m + 1):
-            if detect_mine_cnt == m_number:
-                info_board[i][j] = str(m_number)
-
-    elif mine_b == '.' and game_b == '.':
-        info_board[i][j] = '.'
-    elif mine_b == '*' and game_b =='.':
-        info_board[i][j] = '.'
-
-    if mine_b == '*':
+    for j in range(n):
+        # 지뢰 칸이 열려있는지 확인
+        if mine_board[i][j] == '*' and play_board[i][j] == 'x':
+            is_lose = True
+            break
+        # 상하좌우 및 대각선 인접 8칸에서 지뢰 개수 파악하기
+        elif mine_board[i][j] == '.' and play_board[i][j] == 'x':
+            mine_cnt = 0
+            for k in range(n):
+                check_row    = i + direction_rows[k]
+                check_column = j + direction_columns[k]
+                # 공간을 벗어나는 경우 무시
+                if check_row < 0 or check_column < 0 or check_row > n-1 or check_column > n-1:
+                    continue
+                if mine_board[check_row][check_column] == '*':
+                    mine_cnt += 1
+            board[i][j] = mine_cnt
 
 
+    # 패배 시 출력 격자를 지뢰 격자로 대체0
+    if is_lose:
+        board = mine_board
+        break
 
-for info in info_board:
-    res = ''.join(info)
-    print(res)
+print(board)
