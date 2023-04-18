@@ -15,7 +15,6 @@
     - 지뢰 격자판과 플레이 격자판 비교
         - 지뢰 칸이 하나라도 열려있으면 지뢰가 있는 모든 칸이 별표로 표시됨. 다른 모든 지점은 온점으로 표시됨.
         - 상하좌우 및 대각선 인접 8칸에서 지뢰 개수를 해당 격자의 숫자로 지정
-        - 
 """
 
 n = int(input('> '))
@@ -41,12 +40,12 @@ board = [[0 for _ in range(n)] for _ in range(n)]
 is_lose = False
 for i in range(n):
     for j in range(n):
-        # 지뢰 칸이 열려있는지 확인
-        if mine_board[i][j] == '*' and play_board[i][j] == 'x':
+        # 열었는데 지뢰 칸인 경우
+        if play_board[i][j] == 'x' and mine_board[i][j] == '*':
             is_lose = True
             break
-        # 상하좌우 및 대각선 인접 8칸에서 지뢰 개수 파악하기
-        elif mine_board[i][j] == '.' and play_board[i][j] == 'x':
+        # 열었는데 숫자칸인 경우
+        elif play_board[i][j] == 'x' and  mine_board[i][j] == '.':
             mine_cnt = 0
             for k in range(n):
                 check_row    = i + direction_rows[k]
@@ -57,6 +56,9 @@ for i in range(n):
                 if mine_board[check_row][check_column] == '*':
                     mine_cnt += 1
             board[i][j] = mine_cnt
+        # 안 열려있는 경우
+        else:
+            board[i][j] = '.'
 
 
     # 패배 시 출력 격자를 지뢰 격자로 대체0
@@ -64,4 +66,6 @@ for i in range(n):
         board = mine_board
         break
 
-print(board)
+for b in board:
+    b = map(str, b)
+    print(''.join(b))
